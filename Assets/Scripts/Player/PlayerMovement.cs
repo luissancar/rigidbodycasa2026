@@ -1,0 +1,72 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+[RequireComponent(typeof(Rigidbody))]
+public class PlayerMovement : MonoBehaviour
+{
+    [Header("Movement Settings")]
+    public float speed = 5f;
+    public float jumpForce = 6f;
+
+    private Rigidbody rb;
+    private Vector2 moveInput;
+    private bool isGrounded = true;
+
+    private AnimacionesPlayer animacionesPlayer;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        animacionesPlayer = GetComponent<AnimacionesPlayer>();
+    }
+
+    // ===== INPUT SYSTEM =====
+    // Estas funciones deben coincidir con los nombres de las acciones del Input System
+    public void OnMove(InputValue value)
+    {
+        moveInput = value.Get<Vector2>();
+    }
+
+    public void OnJump(InputValue value)
+    {
+        if (value.isPressed)
+            if (isGrounded)
+                animacionesPlayer.AnimacionSaltar01();
+    }
+
+    public void Saltar()
+    {
+        animacionesPlayer.AnimacionSaltar02();
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+    }
+
+    // ===== MOVIMIENTO =====
+    void FixedUpdate()
+    {
+        // Movimiento en plano X/Z
+        Vector3 direction = new Vector3(moveInput.x, 0, moveInput.y);
+        Vector3 velocity = direction * speed;
+        Vector3 newVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
+
+        rb.linearVelocity = newVelocity;
+    }
+
+    // Detectar suelo
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+            animacionesPlayer.Ensuelo(true);
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = false;
+            animacionesPlayer.Ensuelo( false);
+        }
+    }
+}
