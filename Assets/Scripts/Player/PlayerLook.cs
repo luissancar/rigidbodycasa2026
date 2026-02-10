@@ -1,88 +1,66 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerLook : MonoBehaviour
 {
-    [Header("Referencias")] public Transform cameraTransform;
+    [Header("References")]
+    [Tooltip("Arrastra aquí la cámara (hija del player) o un pivot de cámara.")]
+    public Transform cameraTransform;
 
-    [Header("Mirar (ratón)")] public float mouseSensitivity = 120f;
-    public float minPitch = -40f;
-    public float maxPitch = 40f;
+    [Header("Sensitivity")]
+    public float mouseSensitivity = 0.15f;
+
+    [Header("Pitch Clamp")]
+    public float minPitch = -60f;
+    public float maxPitch =  80f;
 
     private Vector2 lookInput;
-    private float cameraPitch;
+    private float pitch; // rotación vertical acumulada
 
-    [SerializeField] private PlayerInput playerInput;
-    [SerializeField] private float delaySeconds = 2f;
-
-    private Renderer[] renderers;
-
-    private void Awake()
-    {
-        if (cameraTransform == null && Camera.main != null)
-            cameraTransform = Camera.main.transform;
-        if (playerInput == null)
-            playerInput = GetComponent<PlayerInput>();
-        renderers = GetComponentsInChildren<Renderer>(true);
-        Ocultar();
-    }
-
-    private void Ocultar()
-    {
-        foreach(var r in renderers) r.enabled = false;
-    }
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        float yaw = transform.eulerAngles.y;
-        transform.rotation = Quaternion.Euler(0, yaw, 0);
-        cameraPitch = 0f;
-        lookInput = Vector2.zero;
+        if (cameraTransform == null)
+        {
+            // Intenta auto-encontrar una Camera en hijos si no has asignado nada
+            Camera cam = GetComponentInChildren<Camera>();
+            if (cam != null) cameraTransform = cam.transform;
+        }
+
+        // Inicializa pitch con la rotación actual de la cámara
         if (cameraTransform != null)
-            cameraTransform.localRotation = Quaternion.identity;
-        StartCoroutine("StartInput");
+        {
+            pitch = cameraTransform.localEulerAngles.x;
+            if (pitch > 180f) pitch -= 360f; // convertir de 0..360 a -180..180
+        }
+
+        // (Opcional) Bloquear cursor para FPS/3ª persona
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
-    IEnumerator StartInput()
-    {
-        yield return new WaitForSeconds(delaySeconds);
-        Mostrar();
-        if (playerInput != null)
-            playerInput.ActivateInput();
-    }
-
-    private void Mostrar()
-    {
-        foreach(var r in renderers) r.enabled = true;
-    }
-
-    private void OnLook(InputValue value)
+    // Acción del Input System (Vector2): Mouse Delta / Stick
+    public void OnLook(InputValue value)
     {
         lookInput = value.Get<Vector2>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (cameraTransform == null)
-            return;
-        HandleLook();
+        if (cameraTransform == null) return;
+
+        // Yaw (giro horizontal) sobre el player
+        float yaw = lookInput.x * mouseSensitivity;
+        transform.Rotate(0f, yaw, 0f, Space.Self);
+
+        // Pitch (inclinación vertical) sobre la cámara (local)
+        pitch -= lookInput.y * mouseSensitivity;
+        pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+
+        cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
     }
 
-    private void HandleLook()
+    void OnEnable()
     {
-        float mouseX = lookInput.x * mouseSensitivity * Time.deltaTime;
-        float mouseY = lookInput.y * mouseSensitivity * Time.deltaTime;
-
-        transform.Rotate(0f, mouseX, 0f);
-
-        cameraPitch -= mouseY;
-        cameraPitch = Mathf.Clamp(cameraPitch, minPitch, maxPitch);
-
-        cameraTransform.localRotation = Quaternion.Euler(cameraPitch, 0, 0);
+        lookInput = Vector2.zero;
     }
 }

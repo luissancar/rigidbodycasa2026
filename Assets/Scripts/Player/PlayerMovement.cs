@@ -34,6 +34,13 @@ public class PlayerMovement : MonoBehaviour
                 animacionesPlayer.AnimacionSaltar01();
     }
 
+    public void OnGolpear(InputValue value)
+    {if (value.isPressed)
+        if (isGrounded)
+            animacionesPlayer.Golpear();
+
+    }
+
     public void Saltar()
     {
         animacionesPlayer.AnimacionSaltar02();
@@ -44,7 +51,11 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         // Movimiento en plano X/Z
-        Vector3 direction = new Vector3(moveInput.x, 0, moveInput.y);
+        ////////////////////////////////////////////////////////////////////////////// cambiada
+       // Vector3 direction = new Vector3(moveInput.x, 0, moveInput.y);
+       // por esta
+       Vector3 direction = transform.TransformDirection(new Vector3(moveInput.x, 0, moveInput.y));
+
         Vector3 velocity = direction * speed;
         Vector3 newVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
 
@@ -68,5 +79,11 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = false;
             animacionesPlayer.Ensuelo( false);
         }
+    }
+
+
+    void OnEnable()
+    {
+        moveInput = Vector2.zero;
     }
 }

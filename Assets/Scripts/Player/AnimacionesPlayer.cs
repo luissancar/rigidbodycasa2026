@@ -6,6 +6,8 @@ public class AnimacionesPlayer : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private Rigidbody rb;
 
+    public bool puedeGolpear;
+
     /*
      * En el componente Animator, desmarca:
         ✔ Apply Root Motion
@@ -19,6 +21,7 @@ public class AnimacionesPlayer : MonoBehaviour
     {
         if (!animator) animator = GetComponent<Animator>();
         if (!rb) rb = GetComponent<Rigidbody>();
+        puedeGolpear = false;
     }
 
     void FixedUpdate()
@@ -45,6 +48,22 @@ public class AnimacionesPlayer : MonoBehaviour
 
     public void Ensuelo(bool ensuelo)
     {
-        animator.SetBool("EnSuelo", ensuelo );
+        animator.SetBool("EnSuelo", ensuelo);
+    }
+
+    public void Golpear()
+    {
+
+        animator.SetTrigger("Golpear");
+    }
+
+    public void PuedeGolpear()
+    {
+        puedeGolpear = true;
+    }
+
+    public void NoPuedeGolpear()
+    {
+        puedeGolpear = false;
     }
 }
