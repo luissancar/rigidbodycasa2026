@@ -45,6 +45,11 @@ public class AnimacionesPlayer : MonoBehaviour
     {
         animator.SetTrigger("Saltar2");
     }
+    
+    public void AnimacionDisparar()
+    {
+        animator.SetTrigger("Disparar");
+    }
 
     public void Ensuelo(bool ensuelo)
     {

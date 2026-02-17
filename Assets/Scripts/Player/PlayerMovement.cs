@@ -1,7 +1,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Rigidbody))]
+
+/// <summary>
+/// ////////////////////////////////////////
+/// </summary>
+/// * Antiguo
+///
+
+ [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
@@ -14,10 +21,18 @@ public class PlayerMovement : MonoBehaviour
 
     private AnimacionesPlayer animacionesPlayer;
 
+
+    private bool canMove = true;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         animacionesPlayer = GetComponent<AnimacionesPlayer>();
+    }
+
+
+    public void SetCanMove(bool value)
+    {
+        canMove = value;
     }
 
     // ===== INPUT SYSTEM =====
@@ -50,6 +65,8 @@ public class PlayerMovement : MonoBehaviour
     // ===== MOVIMIENTO =====
     void FixedUpdate()
     {
+
+        if (!canMove) return;
         // Movimiento en plano X/Z
         ////////////////////////////////////////////////////////////////////////////// cambiada
        // Vector3 direction = new Vector3(moveInput.x, 0, moveInput.y);

@@ -10,6 +10,7 @@ public class Disparar : MonoBehaviour
 
     [Header("Fuerza del disparo")]
     public float fuerza = 20f;
+    public AnimacionesPlayer  animator;
     
     private void DispararB()
     {
@@ -18,7 +19,7 @@ public class Disparar : MonoBehaviour
             Debug.LogWarning("Faltan referencias en el script Disparo.");
             return;
         }
-
+        animator.AnimacionDisparar();
         // Instanciar el proyectil en el punto de disparo
         GameObject bala = Instantiate(proyectilPrefab, puntoDisparo.position, puntoDisparo.rotation);
         Destroy(bala,3f);

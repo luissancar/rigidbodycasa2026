@@ -31,6 +31,11 @@ public class CameraSwitcher : MonoBehaviour
         for (int i = 0; i < camaras.Count; i++)
         {
             camaras[i].gameObject.SetActive(i == index);
+            if (i == index)
+                camaras[i].gameObject.tag = "MainCamera";
+            else
+                camaras[i].gameObject.tag = "Untagged";
+
         }
     }
 
