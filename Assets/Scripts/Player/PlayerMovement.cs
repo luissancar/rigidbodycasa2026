@@ -2,17 +2,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
-/// <summary>
-/// ////////////////////////////////////////
-/// </summary>
-/// * Antiguo
-///
-
- [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Movement Settings")]
-    public float speed = 5f;
+    [Header("Movement Settings")] public float speed = 5f;
     public float jumpForce = 6f;
 
     private Rigidbody rb;
@@ -23,11 +16,17 @@ public class PlayerMovement : MonoBehaviour
 
 
     private bool canMove = true;
+
+    [SerializeField] public float runMultiplier = 2f;
+
+    [SerializeField] private bool isRunning = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         animacionesPlayer = GetComponent<AnimacionesPlayer>();
     }
+
 
 
     public void SetCanMove(bool value)
@@ -50,10 +49,10 @@ public class PlayerMovement : MonoBehaviour
     }
 
     public void OnGolpear(InputValue value)
-    {if (value.isPressed)
-        if (isGrounded)
-            animacionesPlayer.Golpear();
-
+    {
+        if (value.isPressed)
+            if (isGrounded)
+                animacionesPlayer.Golpear();
     }
 
     public void Saltar()
@@ -65,15 +64,24 @@ public class PlayerMovement : MonoBehaviour
     // ===== MOVIMIENTO =====
     void FixedUpdate()
     {
-
         if (!canMove) return;
         // Movimiento en plano X/Z
         ////////////////////////////////////////////////////////////////////////////// cambiada
-       // Vector3 direction = new Vector3(moveInput.x, 0, moveInput.y);
-       // por esta
-       Vector3 direction = transform.TransformDirection(new Vector3(moveInput.x, 0, moveInput.y));
+        // Vector3 direction = new Vector3(moveInput.x, 0, moveInput.y);
+        // por esta
 
-        Vector3 velocity = direction * speed;
+        // 1. Detectamos si CTRL está pulsado AHORA MISMO
+        bool ctrlPressed = Keyboard.current != null &&
+                           (Keyboard.current.leftCtrlKey.isPressed ||
+                            Keyboard.current.rightCtrlKey.isPressed);
+
+        isRunning = ctrlPressed;  
+
+        Vector3 direction = transform.TransformDirection(new Vector3(moveInput.x, 0, moveInput.y));
+////Run
+        float currentSpeed = isRunning ? speed * runMultiplier : speed;
+        Vector3 velocity = direction * currentSpeed;
+        //    Vector3 velocity = direction * speed;
         Vector3 newVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
 
         rb.linearVelocity = newVelocity;
@@ -94,7 +102,7 @@ public class PlayerMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = false;
-            animacionesPlayer.Ensuelo( false);
+            animacionesPlayer.Ensuelo(false);
         }
     }
 
