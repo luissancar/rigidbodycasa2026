@@ -75,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
                            (Keyboard.current.leftCtrlKey.isPressed ||
                             Keyboard.current.rightCtrlKey.isPressed);
 
-        isRunning = ctrlPressed;  
+        isRunning = ctrlPressed;
 
         Vector3 direction = transform.TransformDirection(new Vector3(moveInput.x, 0, moveInput.y));
 ////Run
